@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% set me = not user %}
+{% set user = request.session.user if me else user %}
+
+{% block content %}
+  {% if edit %}
+    <form class="profile-container" method="post">
+      <h1 class="profile-name">{{ user.username }}</h1>
+      <textarea class="profile-description" name="description">{{ user.description or '' }}</textarea>
+      <input type="submit" value="Save">
+    </form>
+  {% else %}
+    <div class="profile-container">
+      <h1 class="profile-name">{{ user.username }}</h1>
+      <p class="profile-description">{{ user.description or '' }}</p>
+    </div>
+  {% endif %}
+  {% if me %}
+    <a href="{{ url_for('profile_get' if edit else 'edit_profile_get') }}">{{ 'Cancel' if edit else 'Edit' }}</a>
+    <a href="{{ url_for('logout_get') }}">Logout</a>
+  {% endif %}
+  {% if user_reviews %}
+    <div></div>
+    <h2>Reviews</h2>
+    <div class="row05">
+      {% for title, reviews in user_reviews.items() %}
+        {% if reviews %}
+          <div class="list05 flex1">
+            <h3>{{ title.capitalize() }}</h3>
+            {% for review in reviews %}
+              {{ render_review(review) }}
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endblock %}

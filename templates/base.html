@@ -1,0 +1,60 @@
+{% macro user_link(username) %}
+  <a href="{{ url_for('profile_get') if username==request.session.user.username else url_for('user_get', username=username) }}">{{ username }}</a>
+{% endmacro %}
+
+
+{% macro render_task(task) %}
+  <div class="task">
+    <div class="space-between">
+      <a href="{{ url_for('task_get', task_id=task.id) }}">{{ task.name }}</a>
+      <span class="task-price">{{ task.get_price_text() }}</span>
+    </div>
+    <div>
+      <span>Proposals: {{ len(task.proposals) }}</span>
+    </div>
+  </div>
+{% endmacro %}
+
+
+{% macro render_review(review) %}
+  <div class="form border-gray">
+    {{ user_link(review.user.username) }}
+    <div>{{ review.text }}</div>
+  </div>
+{% endmacro %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+  <title>Work</title>
+</head>
+<body>
+  <header>
+    <a class="logo" href="/">Work</a>
+    <nav>
+      {% if request.session.user %}
+        <a href="{{ url_for('my_tasks_get') }}">My tasks</a>
+        <a href="{{ url_for('new_task_get') }}">Create Task</a>
+        <a href="{{ url_for('profile_get') }}">Profile</a>
+        <a href="{{ url_for('balance_get') }}">{{ request.session.user.get_balance_text() }} $</a>
+      {% else %}
+        <a href="{{ url_for('login_get') }}">Login</a>
+        <a href="{{ url_for('register_get') }}">Register</a>
+      {% endif %}
+    </nav>
+  </header>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+  <footer>
+    <p>&copy; 2025 Work</p>
+  </footer>
+  {% if request.message %}
+    <script>alert(`{{ request.message }}`)</script>
+  {% endif %}
+</body>
+</html>

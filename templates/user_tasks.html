@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="list05">
+    {% for task in tasks %}
+      {{ render_task(task) }}
+    {% endfor %}
+  </div>
+{% endblock %}

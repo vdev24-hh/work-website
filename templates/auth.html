@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <form class="search-tasks" method="post">
+    <input type="text" name="username" placeholder="Username">
+    <input type="password" name="password" placeholder="Password">
+    <input type="submit" value="{{ 'Register' if register else 'Login' }}">
+    <a class="auth-link" href="{{ url_for('login_get' if register else 'register_get') }}">{{ 'I have an account' if register else 'Create account' }}</a>
+  </form>
+{% endblock %}

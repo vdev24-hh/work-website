@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% macro render_proposal(proposal, employee=False) %}
+  <form method="post">
+    {{ user_link(proposal.user.username) }}
+    <div>{{ proposal.text }}</div>
+    {% if employee %}
+      <input type="hidden" name="employee_username" value="{{ proposal.user.username }}">
+      <input type="submit" value="Select">
+    {% endif %}
+  </form>
+{% endmacro %}
+
+{% set authorized = request.session.user %}
+{% set user_id = request.session.user_id if authorized else None %}
+{% set is_employer = user_id==task.user_id if authorized else False %}
+{% set is_employee = user_id==task.employee_id if authorized and task.employee else False %}
+
+{% block content %}
+  <form class="task" method="post">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 1em">
+      {{ user_link(task.user.username) }}
+      <div class="task-price">{{ task.get_price_text() }}</div>
+    </div>
+    <div class="task-name">{{ task.name }}</div>
+    <div class="task-description">{{ task.description }}</div>
+    {% if is_employer or is_employee %}
+      {% if task.status %}
+        {% for review in task.get_reviews() %}
+          {{ render_review(review) }}
+        {% endfor %}
+        {% if not (is_employer and task.has_review() or is_employee and task.has_review(True)) %}
+          <textarea name="review"></textarea>
+          <input type="submit" value="Save">
+        {% endif %}
+      {% elif is_employee %}
+        <div class="row05">
+          <input type="submit" name="done" value="Done">
+          <input type="submit" name="cancel" value="Cancel">
+        </div>
+      {% endif %}
+    {% endif %}
+  </form>
+  {% if request.session.user %}
+    {% if task.user_id==request.session.user_id %}
+      <div class="list05">
+        {% for proposal in task.get_proposals_sorted_by_id() %}
+          {{ render_proposal(proposal, not task.employee) }}
+        {% endfor %}
+      </div>
+    {% else %}
+      {% set proposal = task.get_proposals_by_user_id().get(request.session.user_id) %}
+      {% if proposal %}
+        {{ render_proposal(proposal) }}
+      {% else %}
+        <form method="post">
+          <textarea name="proposal" placeholder="Proposal text..."></textarea>
+          <input type="submit" value="Send">
+        </form>
+      {% endif %}
+    {% endif %}
+  {% else %}
+    <div class="form"><div><a href="{{ url_for('login_get') }}">Login</a> or <a href="{{ url_for('register_get') }}">Register</a></div></div>
+  {% endif %}
+{% endblock %}

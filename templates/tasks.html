@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <form class="search-tasks">
+    <input type="text" name="q" value="{{ request.args.get('q') or '' }}" placeholder="Search tasks..." />
+  </form>
+  <div class="list05">
+    {% for task in tasks %}
+      {{ render_task(task) }}
+    {% endfor %}
+  </div>
+{% endblock %}
